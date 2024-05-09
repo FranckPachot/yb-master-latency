@@ -164,13 +164,26 @@ Flushing kTransactional num ops: 1:  t1_003 (1)
 Flushing kCatalog num ops: 1:  pg_class (1)
 ```
 
+## ysql_catalog_preload_additional_tables=true
+
+When starting the `yb-tserver` with `--ysql_catalog_preload_additional_tables=true` in the docker compose file, the first statement is much faster :
+```
+yugabyte=# \c
+You are now connected to database "yugabyte" as user "yugabyte".
+
+yugabyte=# \! curl -s yb-tserver:9000/varz?raw | grep preload
+--ysql_catalog_preload_additional_table_list=
+--ysql_catalog_preload_additional_tables=true
+--ysql_minimal_catalog_caches_preload=false
 
 
+yugabyte=# explain (analyze, dist) update t1 set value=value+1 where id=42;
+..
+ Planning Time: 206.543 ms
+ Execution Time: 57.668 ms
+...
+ Catalog Read Requests: 8
+ Catalog Read Execution Time: 407.792 ms
+...
 
-
-
-
-
-
-
-
+```

@@ -6,19 +6,19 @@ services:
   cap_add:
    - NET_ADMIN
   command: |
-   bash -xc '
+   bash -xc "
     # add a network delay
     tc qdisc add dev eth0 root netem delay 50ms 
     # start yb-master for RF1
     /home/yugabyte/bin/yb-master  --fs_data_dirs=/home/yugabyte/data --rpc_bind_addresses=yb-master:7100  --master_addresses=yb-master:7100 --replication_factor=1
-   '
+   "
  yb-tserver:
   build: .
   command: |
-   bash -xc '
+   bash -xc "
     # start yb-tserver
-    /home/yugabyte/bin/yb-tserver --fs_data_dirs=/home/yugabyte/data --rpc_bind_addresses=yb-tserver:7100 --tserver_master_addrs=yb-master:7100 --replication_factor=1
-   ' 
+    /home/yugabyte/bin/yb-tserver --fs_data_dirs=/home/yugabyte/data --rpc_bind_addresses=yb-tserver:7100 --tserver_master_addrs=yb-master:7100 --replication_factor=1 --ysql_pg_conf_csv=yb_debug_log_docdb_requests=off --ysql_catalog_preload_additional_tables=false --ysql_catalog_preload_additional_table_list=''
+   " 
   healthcheck:
    interval: 5s
    timeout: 3s
