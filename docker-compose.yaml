@@ -1,0 +1,37 @@
+services:
+ yb-master:
+  build: .
+  ports:
+   - "7000:7000"
+  cap_add:
+   - NET_ADMIN
+  command: |
+   bash -xc '
+    # add a network delay
+    tc qdisc add dev eth0 root netem delay 50ms 
+    # start yb-master for RF1
+    /home/yugabyte/bin/yb-master  --fs_data_dirs=/home/yugabyte/data --rpc_bind_addresses=yb-master:7100  --master_addresses=yb-master:7100 --replication_factor=1
+   '
+ yb-tserver:
+  build: .
+  command: |
+   bash -xc '
+    # start yb-tserver
+    /home/yugabyte/bin/yb-tserver --fs_data_dirs=/home/yugabyte/data --rpc_bind_addresses=yb-tserver:7100 --tserver_master_addrs=yb-master:7100 --replication_factor=1
+   ' 
+  healthcheck:
+   interval: 5s
+   timeout: 3s
+   test: postgres/bin/pg_isready -h yb-tserver
+ pg:
+  image: postgres
+  environment:
+   - PGLOADBALANCEHOSTS=random
+   - PGUSER=yugabyte
+   - PGDATABASE=yugabyte
+   - PGPASSWORD=yugabyte
+   - PGPORT=5433
+   - PGHOST=yb-tserver
+  depends_on:
+   yb-tserver:
+    condition: service_healthy
