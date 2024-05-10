@@ -1,5 +1,5 @@
 # yb-master-latency
-Docker compose to start YugabyteDB with latency simulated network latency to yb-master
+Docker compose to start YugabyteDB lab with simulated network latency to yb-master
 
 Start it with:
 ```
@@ -84,7 +84,7 @@ Time: 4.623 ms
 
 If you want more details about the read requests, you can run `\! sh print_docdb_requests.sh` after setting `yb_debug_log_docdb_requests=on`.
 
-Here is an exampel to show that an EXPLAIN SELECT is not sufficient to cache all catalog info required by an UPDATE:
+Here is an example to show that an EXPLAIN SELECT is not sufficient to cache all catalog info required by an UPDATE:
 
 ```
 yugabyte=# \c
@@ -166,7 +166,7 @@ Flushing kCatalog num ops: 1:  pg_class (1)
 
 ## ysql_catalog_preload_additional_tables=true
 
-When starting the `yb-tserver` with `--ysql_catalog_preload_additional_tables=true` in the docker compose file, the first statement is much faster :
+When starting the `yb-tserver` with `--ysql_catalog_preload_additional_tables=true` in the docker compose file, the first statement is much faster because [more](https://github.com/yugabyte/yugabyte-db/blame/2.23.0.1141/src/postgres/src/backend/utils/cache/relcache.c#L2737) tables are [loaded at connection time](https://github.com/yugabyte/yugabyte-db/blame/2.23.0.1141/src/postgres/src/backend/utils/cache/relcache.c#L2853)
 ```
 yugabyte=# \c
 You are now connected to database "yugabyte" as user "yugabyte".
