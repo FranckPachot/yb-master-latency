@@ -25,6 +25,7 @@ services:
    test: postgres/bin/pg_isready -h yb-tserver
  pg:
   image: postgres
+  command: psql -c "select version()"
   environment:
    - PGLOADBALANCEHOSTS=random
    - PGUSER=yugabyte
